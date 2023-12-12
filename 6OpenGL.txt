@@ -1,0 +1,65 @@
+#include <GL/glut.h>
+#include <cmath>
+#define PI 3.14159265358979323846
+GLfloat sunX = 0.0f;
+GLfloat sunY = 0.0f;
+GLfloat timeOfDay = 0.0f;
+void drawSun() {
+ glColor3f(1.0f, 0.8f, 0.0f); // Yellowish color for the sun
+ glPushMatrix();
+ glTranslatef(sunX, sunY, 0.0f);
+ glutSolidSphere(0.1f, 100, 100); // Draw the sun as a sphere
+ glPopMatrix();
+}
+void drawBackground() {
+ if (timeOfDay < 0.5) {
+ // Draw the sky for daytime
+ glColor3f(0.0f, 0.7f, 1.0f); // Blue sky
+ } else {
+ // Draw the sky for nighttime
+ glColor3f(0.0f, 0.0f, 0.1f); // Dark blue for the night sky
+ }
+ glBegin(GL_QUADS);
+ glVertex2f(-1.0f, -1.0f);
+ glVertex2f(1.0f, -1.0f);
+ glVertex2f(1.0f, 1.0f);
+ glVertex2f(-1.0f, 1.0f);
+ glEnd();
+}
+void display() {
+ glClear(GL_COLOR_BUFFER_BIT);
+ drawBackground();
+ drawSun();
+ glutSwapBuffers();
+}
+void update(int value) {
+ // Update the position of the sun and time of day
+ if (timeOfDay < 1.0) {
+ sunX = -1.0 + 2.0 * timeOfDay;
+ sunY = sin(PI * timeOfDay) - 0.5;
+ timeOfDay += 0.001; // Adjust this value to control the speed of the sunrise and sunset
+ } else {
+ // Reset to daytime
+ timeOfDay = 0.0;
+ }
+ glutPostRedisplay();
+ glutTimerFunc(10, update, 0);
+}
+void reshape(int w, int h) {
+ glViewport(0, 0, w, h);
+ glMatrixMode(GL_PROJECTION);
+ glLoadIdentity();
+ glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+ glMatrixMode(GL_MODELVIEW);
+}
+int main(int argc, char** argv) {
+ glutInit(&argc, argv);
+ glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+ glutInitWindowSize(800, 600);
+ glutCreateWindow("Sunrise and Sunset Simulation");
+ glutDisplayFunc(display);
+ glutReshapeFunc(reshape);
+ glutTimerFunc(10, update, 0);
+ glutMainLoop();
+ return 0;
+}
